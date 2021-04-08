@@ -1,0 +1,181 @@
+{{define "title"}}Light Edit Document Structure of {{.DocumentStructure}}{{end}}
+
+
+{{define "styles"}}
+<style>
+.error-box {
+  display: none;
+  color: red;
+}
+body {
+  margin-bottom: 50px;
+}
+.field-label {
+  width: 300px;
+}
+thead {
+  font-weight: bold;
+}
+tbody {
+  vertical-align: top;
+}
+.other-options, textarea {
+  width: 300px;
+}
+#container {
+  width: fit-content;
+  margin: 0 auto;
+}
+</style>
+{{end}}
+
+
+{{define "main"}}
+<div id="container">
+  <h1>Light Edit Document Structure of {{.DocumentStructure}}</h1>
+  <h2>Help</h2>
+  <p>
+    Light Edit of Document Structures do not need the user to update their data.
+  </p>
+
+  <h2>Change Name Form</h2>
+  <p id="change-name-error" class="error-box"></p>
+  <form id="change-name-form" method='post' action='/pk/update-document-structure-name/{{.DocumentStructure}}/'>
+    <div>
+      <label>New Name</label>
+      <input type="text" value="{{.DocumentStructure}}" name="new-name" />
+    </div>
+    <div>
+      <input type="submit" value="Update" id="change-name-btn" />
+    </div>
+  </form>
+
+  <h2>Update Comment</h2>
+  <p id="comment-error" class="error-box"></p>
+  <form id="update-comment-form" method='post' action='/pk/update-comment/{{.DocumentStructure}}/'>
+    <div>
+      <label>Comment</label><br>
+      <textarea name="updated-comment">{{.Comment}}</textarea>
+    </div>
+    <div>
+      <input type="submit" value="Update" />
+    </div>
+  </form>
+
+
+  <h2>Change Field Label(s)</h2>
+  <p id="change-field-labels-error" class="error-box"></p>
+  <form id="change-field-labels-form" method="post" action='/pk/update-field-labels/{{.DocumentStructure}}/'>
+    <table id="new-field-labels-tbl">
+      <thead>
+        <tr>
+          <td>No</td>
+          <td>Old Label Name</td>
+          <td>New Label Name</td>
+        </tr>
+      </thead>
+      <tbody>
+        <tr>
+          <td>1</td>
+          <td>
+            <select name='old-field-label-1' class='old-field-label'>
+              {{range $.OldLabels}}
+                <option>{{.}}</option>
+              {{end}}
+            </select>
+          </td>
+          <td>
+            <input type="text" name="new-field-label-1" class="new-field-label" required />
+          </td>
+        </tr>
+      </tbody>
+    </table>
+    <br>
+    <div>
+      <button type="button" id='add-field-btn'>Add Field</button>
+    </div>
+    <br>
+    <div>
+      <input type="submit" value="Update" id="update-field-labels-btn" />
+    </div>
+  </form>
+
+</div>
+{{end}}
+
+{{define "scripts"}}
+<script>
+var docNames = "{{.DocumentStructures}}";
+var numberOfFields = {{.NumberofFields}};
+var oldLabels = "{{.OldLabelsStr}}";
+var childTableDocumentStructures = "{{.ChildTableDocumentStructures}}";
+var oldFieldNames = [ {{range $.DocDatas}} "{{.Name}}", {{end}} ];
+var isChildTable = {{.IsChildTable}};
+
+function recountChangeFieldTable() {
+  $('#change-fields-order-form tbody tr').each(function(i, el) {
+    var newNo = i + 1;
+    $('td:first', el).text(newNo.toString());
+  });
+}
+
+$(document).ready(function() {
+  docNamesList = docNames.split(',,,');
+
+  $('#change-name-btn').click(function(e) {
+    e.preventDefault()
+
+    if ( docNamesList.indexOf( $('input[name=new-name]').val() ) != -1 ) {
+      $('#change-name-error').text('The document name is already taken.');
+      $('#change-name-error').show();
+      $('input[name=new-name]').css('border', '1px solid red');
+      return;
+    } else {
+      $('#change-name-error').hide();
+    }
+
+    $('#change-name-form').submit();
+  });
+
+  $('.move-up').click(function(e) {
+    e.preventDefault();
+
+    var parentTr = $(e.target).parents('tr');
+    var no = $('td:first ', parentTr).text()
+    if (no == '1') {
+      return
+    }
+    parentTr.insertBefore(parentTr.prev("tr"));
+    // recount the numbers
+    recountChangeFieldTable();
+  });
+
+  $('.move-down').click(function(e) {
+    e.preventDefault();
+
+    var parentTr = $(e.target).parents('tr');
+    var total = $('#change-fields-order-form tbody tr').length;
+    var no = $('td:first ', parentTr).text();
+    if (no == total) {
+      return
+    }
+    parentTr.insertAfter(parentTr.next("tr"));
+    recountChangeFieldTable();
+  });
+
+  $('#change-fields-order-form input[type=submit]').click(function(e) {
+    e.preventDefault();
+
+
+    $('#change-fields-order-form tbody tr').each(function(i, el) {
+      var html = "<input type='hidden' name='el-" + $('td:first', el).text() + "' value='";
+      html += $('td:nth-child(2)', el).text() + "' />"
+      $('#change-fields-order-form').append(html);
+    });
+
+    $('#change-fields-order-form').submit();
+  });
+
+});
+</script>
+{{end}}

@@ -1,0 +1,79 @@
+{{define "title"}}View Document Structure of {{.DocumentStructure}}{{end}}
+
+
+{{define "styles"}}
+  <style>
+  thead {
+    font-weight: bold;
+  }
+  td {
+    border-right: 1px solid gray;
+    padding: 5px;
+  }
+  td:last-child {
+    border-right: none;
+  }
+  .button-look {
+    text-decoration: none;
+    background-color: gray;
+    color: white;
+    border: 1px solid #999;
+    border-radius: 3px;
+    padding: 3px;
+  }
+  .button-look:hover {
+    background-color: #ccc;
+  }
+  #container {
+    width: fit-content;
+    margin: 0 auto;
+  }
+  </style>
+{{end}}
+
+
+{{define "main"}}
+<div id="container">
+  <h1>View Document Structure of {{.DocumentStructure}}</h1>
+
+  <div><a href="/pk/light-edit-document-structure/{{.DocumentStructure}}/">Lightly Edit this Document Structure</a></div>
+  <div><a href="/pk/full-edit-document-structure/{{.DocumentStructure}}/">Fully Edit this Document Structure</a></div>
+
+
+  <span>ID : <b>{{.Id}}</b></span><br>
+  <span>Database Table Name: <b>{{.TableName}}</b></span><br>
+
+  <br>
+
+  <h2>Field Data</h2>
+
+  <table>
+    <thead>
+      <tr>
+        <td>Id</td>
+        <td>Label</td>
+        <td>Name</td>
+        <td>Type</td>
+        <td>Required</td>
+        <td>Unique</td>
+        <td>Other Options</td>
+      </tr>
+    </thead>
+    <tbody>
+      {{$add := .Add}}
+      {{range $index, $element := .DocDatas}}
+      <tr>
+        <td>{{call $add $index 1}}</td>
+        <td>{{$element.Label}}</td>
+        <td>{{$element.Name}}</td>
+        <td>{{$element.Type}}</td>
+        <td>{{$element.Required}}</td>
+        <td>{{$element.Unique}}</td>
+        <td>{{$element.OtherOptions}}</td>
+      </tr>
+      {{end}}
+    </tbody>
+  </table>
+
+</div>
+{{end}}

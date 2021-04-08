@@ -1,0 +1,54 @@
+{{define "title"}}List Document Structures{{end}}
+
+{{define "styles"}}
+  <style>
+  li {
+    margin-bottom: 20px;
+  }
+  a {
+    margin-right: 20px;
+  }
+
+  .view-link {
+    text-decoration: none;
+    color: skyBlue;
+  }
+  .view-link:hover {
+    text-decoration: underline;
+  }
+  .button-look {
+    text-decoration: none;
+    background-color: gray;
+    color: white;
+    border: 1px solid #999;
+    border-radius: 3px;
+    padding: 5px;
+  }
+  .button-look:hover {
+    background-color: #ccc;
+  }
+  #container {
+    width: fit-content;
+    margin: 0 auto;
+  }
+  </style>
+{{end}}
+
+
+{{define "main"}}
+  <div id="container">
+    <h1>List of Document Structures</h1>
+    <ol>
+    {{range .DocumentStructures}}
+      <li>
+        {{.DSName}}
+        <a class="button-look" href="/pk/view-document-structure/{{.DSName}}/">View Document Structure</a>
+        <a class='button-look' href='/pk/delete-document-structure/{{.DSName}}/'>Delete</a>
+        <a class="button-look" href='/pk/new-ds-from-template/{{.DSName}}/'>Create a similar Document Structure</a>
+      </li>
+    {{end}}
+    </ol>
+
+    <h4><a href="/pk/new-document-structure/">New Document Structure</a></h4>
+  </div>
+{{end}}
