@@ -10,7 +10,7 @@ import (
 )
 
 
-func SaveDocument(ds string, r *http.Request) (int64, error) {
+func CreateDocument(ds string, r *http.Request) (int64, error) {
   userIdInt64, err := GetCurrentUser(r)
   if err != nil {
     return 0, errors.Wrap(err, "pankul error")
@@ -79,4 +79,114 @@ func SaveDocument(ds string, r *http.Request) (int64, error) {
   }
 
   return lastId, nil
+}
+
+
+type docAndStructure struct {
+  DocData
+  Data string
+}
+
+
+func GetDocument(ds string, docId int64, r *http.Request) ([]docAndStructure, map[string]string, error) {
+  userIdInt64, err := GetCurrentUser(r)
+  if err != nil {
+    return nil, nil, errors.Wrap(err, "pankul error")
+  }
+
+  detv, err := docExists(ds)
+  if err != nil {
+    return nil, nil, errors.Wrap(err, "pankul error")
+  }
+  if detv == false {
+    return nil, nil, errors.New(fmt.Sprintf("The document structure %s does not exists.", ds))
+  }
+
+  tblName, err := tableName(ds)
+  if err != nil {
+    return nil, nil, errors.Wrap(err, "pankul error")
+  }
+
+  count, err := FRCL.CountRows(fmt.Sprintf(`
+    table: %s
+    where:
+      id = %d
+    `, tblName, docId))
+  if err != nil {
+    return nil, nil, errors.Wrap(err, "flaarum error")
+  }
+  if count == 0 {
+    return nil, nil, errors.New(fmt.Sprintf("The document with id %d do not exists", docId))
+  }
+
+  arow, err := FRCL.SearchForOne(fmt.Sprintf(`
+    table: %s expand
+    where:
+      id = %d
+    `, tblName, docId))
+  if err != nil {
+    return nil, nil, errors.Wrap(err, "flaarum error")
+  }
+
+  docDatas, err := GetDocData(ds)
+  if err != nil {
+    return nil, nil, errors.Wrap(err, "pankul error")
+  }
+
+  docAndStructureSlice := make([]docAndStructure, 0)
+
+  rowMap := make(map[string]string)
+  for k, v := range *arow {
+    var data string
+    switch dInType := v.(type) {
+    case int64, float64:
+      data = fmt.Sprintf("%v", dInType)
+    case time.Time:
+      dInTypeCorrected, err := timeInUserTimeZone(dInType, userIdInt64)
+      if err != nil {
+        return nil, nil, errors.Wrap(err, "pankul error")
+      }
+      data = dInTypeCorrected.Format("2006-01-02T15:04")
+    case string:
+      data = dInType
+    case bool:
+      data = BoolToStr(dInType)
+    }
+
+    rowMap[k] = data
+  }
+
+
+  for _, docData := range docDatas {
+    if docData.Type == "Section Break" {
+      docAndStructureSlice = append(docAndStructureSlice, docAndStructure{docData, ""})
+    } else if docData.Type == "Date" {
+      data := (*arow)[docData.Name].(time.Time).Format("2006-01-02")
+      docAndStructureSlice = append(docAndStructureSlice, docAndStructure{docData, data})
+    } else {
+      data := rowMap[ docData.Name ]
+
+      docAndStructureSlice = append(docAndStructureSlice, docAndStructure{docData, data})
+    }
+  }
+
+  meta := make(map[string]string)
+  rawCreated := (*arow)["created"].(time.Time)
+  createdCorrected, err := timeInUserTimeZone(rawCreated, userIdInt64)
+  if err != nil {
+    return nil, nil, errors.Wrap(err, "pankul error")
+  }
+  meta["created"] = flaarum.RightDateTimeFormat(createdCorrected)
+
+  rawModified := (*arow)["modified"].(time.Time)
+  modifiedCorrected, err := timeInUserTimeZone(rawModified, userIdInt64)
+  if err != nil {
+    return nil, nil, errors.Wrap(err, "pankul error")
+  }
+  meta["modified"] = flaarum.RightDateTimeFormat(modifiedCorrected)
+
+  created_by := (*arow)["created_by"].(int64)
+  meta["created_by"] = strconv.FormatInt(created_by, 10)
+
+  return docAndStructureSlice, meta, nil
 }
