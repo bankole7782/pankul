@@ -195,10 +195,10 @@ func AddHandlers(r *mux.Router) {
   // Please don't change the paths.
 
   // Please call this link first to do your setup.
-  r.HandleFunc("/pk/setup", pankulSetup)
+  r.HandleFunc("/pk/setup/", pankulSetup)
 
   // admin pages
-  r.HandleFunc("/pk/page", pankulPage)
+  r.HandleFunc("/pk/page/", pankulPage)
 
   // document structure links
   r.HandleFunc("/pk/new-document-structure/", newDocumentStructure)
