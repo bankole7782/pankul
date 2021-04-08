@@ -179,7 +179,6 @@ type DocData struct {
   Type string
   Required bool
   Unique bool
-  ReadOnly bool
   OtherOptions []string
 }
 
@@ -212,44 +211,22 @@ func GetDocData(documentStructure string) ([]DocData, error) {
     if oo, ok := row["other_options"]; ok {
     	otherOptions = oo.(string)
     }
-    var required, unique, readonly bool
+    var required, unique bool
     if optionSearch(options, "required") {
       required = true
     }
     if optionSearch(options, "unique") {
       unique = true
     }
-    if optionSearch(options, "readonly") {
-      readonly = true
-    }
     otherOptionsOk := make([]string, 0)
     for _, otherOption := range strings.Split(otherOptions, "\n") {
       otherOptionsOk = append(otherOptionsOk, strings.TrimSpace(otherOption))
     }
-    dd := DocData{label, name, type_, required, unique, readonly, otherOptionsOk}
+    dd := DocData{label, name, type_, required, unique, otherOptionsOk}
     dds = append(dds, dd)
   }
 
   return dds, nil
-}
-
-
-func documentStructureHasForm(documentStructure string) (bool, error) {
-  count, err := FRCL.CountRows(fmt.Sprintf(`
-  	table: pk_fields expand
-  	where:
-  		dsid.fullname = %s
-  		and type in File Image
-  	`, documentStructure))
-  if err != nil {
-  	return false, err
-  }
-
-  ret := false
-  if count > 0 {
-    ret = true
-  }
-  return ret, nil
 }
 
 
