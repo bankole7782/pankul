@@ -7,6 +7,7 @@ import (
   "github.com/bankole7782/flaarum"
   "time"
   "strconv"
+  "html"
 )
 
 
@@ -189,4 +190,70 @@ func GetDocument(ds string, docId int64, r *http.Request) ([]docAndStructure, ma
   meta["created_by"] = strconv.FormatInt(created_by, 10)
 
   return docAndStructureSlice, meta, nil
+}
+
+
+func UpdateDocument(ds string, docId int64, r *http.Request) error {
+  userIdInt64, err := GetCurrentUser(r)
+  if err != nil {
+    return errors.Wrap(err, "pankul error")
+  }
+
+  detv, err := docExists(ds)
+  if err != nil {
+    return errors.Wrap(err, "pankul error")
+  }
+  if detv == false {
+    return errors.New(fmt.Sprintf("The document structure %s does not exists.", ds))
+  }
+
+  tblName, err := tableName(ds)
+  if err != nil {
+    return errors.Wrap(err, "pankul error")
+  }
+
+  docAndStructureSlice, _, err := GetDocument(ds, docId, r)
+  if err != nil {
+    return errors.Wrap(err, "pankul error")
+  }
+
+  toUpdate := make(map[string]string)
+  for _, docAndStructure := range docAndStructureSlice {
+
+    if docAndStructure.Data != html.EscapeString(r.FormValue(docAndStructure.DocData.Name)) {
+      switch docAndStructure.DocData.Type {
+      case "Check":
+        var data string
+        if r.FormValue(docAndStructure.DocData.Name) == "on" {
+          data = "t"
+        } else {
+          data = "f"
+        }
+        toUpdate[docAndStructure.DocData.Name] = data
+      case "Datetime":
+        tzname, err := getUserTimeZoneSuffix(userIdInt64)
+        if err != nil {
+          return errors.Wrap(err, "pankul error")
+        }
+        toUpdate[docAndStructure.DocData.Name] = r.FormValue(docAndStructure.DocData.Name) + " " + tzname
+      default:
+        toUpdate[docAndStructure.DocData.Name] = html.EscapeString(r.FormValue(docAndStructure.DocData.Name))
+      }
+    }
+
+  }
+
+
+  toUpdate["modified"] = flaarum.RightDateTimeFormat(time.Now())
+
+  err = FRCL.UpdateRowsStr(fmt.Sprintf(`
+    table: %s
+    where:
+      id = %d
+    `, tblName, docId), toUpdate)
+  if err != nil {
+    return errors.Wrap(err, "pankul error")
+  }
+
+  return nil
 }
