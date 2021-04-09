@@ -35,13 +35,12 @@
 {{define "main"}}
 <div id="container">
   <h1>View Document Structure of {{.DocumentStructure}}</h1>
-
+  <span>ID : <b>{{.Id}}</b></span><br>
+  <span>Database Table Name: <b>{{.TableName}}</b></span><br>
+  <div><h3>Comment</h3><p>{{.Comment}}</p></div><br>
   <div><a href="/pk/light-edit-document-structure/{{.DocumentStructure}}/">Lightly Edit this Document Structure</a></div>
   <div><a href="/pk/full-edit-document-structure/{{.DocumentStructure}}/">Fully Edit this Document Structure</a></div>
 
-
-  <span>ID : <b>{{.Id}}</b></span><br>
-  <span>Database Table Name: <b>{{.TableName}}</b></span><br>
 
   <br>
 

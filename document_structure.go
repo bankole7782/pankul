@@ -280,7 +280,6 @@ func viewDocumentStructure(w http.ResponseWriter, r *http.Request) {
 
   row, err := FRCL.SearchForOne(fmt.Sprintf(`
     table: pk_document_structures
-    fields: tbl_name id
     where:
       fullname = '%s'
     `, ds))
@@ -296,6 +295,10 @@ func viewDocumentStructure(w http.ResponseWriter, r *http.Request) {
   }
 
   tblName := (*row)["tbl_name"].(string)
+  var commentStr string
+  if htAny, ok := (*row)["comment"]; ok {
+    commentStr = htAny.(string)
+  }
 
   docDatas, err := GetDocData(ds)
   if err != nil {
@@ -309,13 +312,14 @@ func viewDocumentStructure(w http.ResponseWriter, r *http.Request) {
     Id int64
     Add func(x, y int) int
     TableName string
+    Comment template.HTML
   }
 
   add := func(x, y int) int {
     return x + y
   }
 
-  ctx := Context{ds, docDatas, id, add, tblName}
+  ctx := Context{ds, docDatas, id, add, tblName, template.HTML(cleanComment(commentStr))}
   tmpl := template.Must(template.ParseFiles(getBaseTemplate(), "pankul_files/view-document-structure.html"))
   tmpl.Execute(w, ctx)
 }

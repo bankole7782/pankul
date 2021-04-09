@@ -292,3 +292,7 @@ func timeInUserTimeZone(t time.Time, userid int64) (time.Time, error) {
   }
   return t, nil
 }
+
+func cleanComment(rawComment string) string {
+	return strings.ReplaceAll(rawComment, "\n", "<br>")
+}
