@@ -174,18 +174,6 @@ func pankulSetup(w http.ResponseWriter, r *http.Request) {
     return
   }
 
-  err = createOrUpdateTable(`
-  	table: pk_files_for_delete
-  	fields:
-  		created_by int required
-  		filepath string required
-  	::
-  	`)
-  if err != nil {
-    errorPage(w, err.Error())
-    return
-  }
-
   fmt.Fprintf(w, "Setup Completed.")
 }
 

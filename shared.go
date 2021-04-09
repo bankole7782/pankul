@@ -90,7 +90,7 @@ func untestedRandomString(length int) string {
 
 func newTableName() (string, error) {
   for {
-    newName := "f8tbl_" + untestedRandomString(3)
+    newName := "pktbl_" + untestedRandomString(3)
     count, err := FRCL.CountRows(fmt.Sprintf(`
     	table: pk_document_structures
     	where:
