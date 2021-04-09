@@ -35,7 +35,7 @@ func lightEditDocumentStructure(w http.ResponseWriter, r *http.Request) {
     return
   }
 
-  dsList, err := GetDocumentStructureList("all")
+  dsList, err := GetDocumentStructureList()
   if err != nil {
     errorPage(w, err.Error())
     return
@@ -287,7 +287,7 @@ func fullEditDocumentStructure(w http.ResponseWriter, r *http.Request) {
     commentStr = htAny.(string)
   }
 
-  dsList, err := GetDocumentStructureList("all")
+  dsList, err := GetDocumentStructureList()
   if err != nil {
     errorPage(w, err.Error())
     return

@@ -26,7 +26,7 @@ func newDocumentStructure(w http.ResponseWriter, r *http.Request) {
     type Context struct {
       DocumentStructures string
     }
-    dsList, err := GetDocumentStructureList("all")
+    dsList, err := GetDocumentStructureList()
     if err != nil {
       errorPage(w, err.Error())
       return
@@ -370,7 +370,7 @@ func newDSFromTemplate(w http.ResponseWriter, r *http.Request) {
     commentStr = htAny.(string)
   }
 
-  dsList, err := GetDocumentStructureList("all")
+  dsList, err := GetDocumentStructureList()
   if err != nil {
     errorPage(w, err.Error())
     return

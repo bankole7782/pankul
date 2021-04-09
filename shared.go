@@ -57,7 +57,7 @@ func isUserAdmin(r *http.Request) (bool, error) {
 }
 
 
-func GetDocumentStructureList(situation string) ([]string, error) {
+func GetDocumentStructureList() ([]string, error) {
   tempSlice := make([]string, 0)
 
   rows, err := FRCL.Search(`
@@ -140,7 +140,7 @@ func optionSearch(commaSeperatedOptions, option string) bool {
 
 
 func docExists(documentName string) (bool, error) {
-  dsList, err := GetDocumentStructureList("all")
+  dsList, err := GetDocumentStructureList()
   if err != nil {
     return false, err
   }
