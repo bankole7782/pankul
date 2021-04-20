@@ -230,7 +230,7 @@ func GetDocData(documentStructure string) ([]DocData, error) {
 }
 
 
-func BoolToStr(b bool) string {
+func boolToStr(b bool) string {
   if b {
     return "t"
   } else {

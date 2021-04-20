@@ -11,7 +11,21 @@ import (
 )
 
 
-func CreateDocument(ds string, r *http.Request) (int64, error) {
+// Gets a dataMap (map[string]string) from the request object.
+func MakeDataMapFromRequest(r *http.Request) map[string]string {
+  outMap := make(map[string]string)
+
+  r.FormValue("email") // this would populate the r.PostForm object.
+  for k, _ := range r.PostForm {
+    outMap[k] = r.FormValue(k)
+  }
+
+  return outMap
+}
+
+
+// This function would be used for saving in your create pages.
+func CreateDocument(ds string, dataMap map[string]string, r *http.Request) (int64, error) {
   userIdInt64, err := GetCurrentUser(r)
   if err != nil {
     return 0, errors.Wrap(err, "pankul error")
@@ -39,10 +53,14 @@ func CreateDocument(ds string, r *http.Request) (int64, error) {
     if dd.Type == "Section Break" {
       continue
     }
+    tmpData, ok := dataMap[dd.Name]
+    if ! ok {
+      continue
+    }
     switch dd.Type {
     case "Check":
       var data string
-      if r.FormValue(dd.Name) == "on" {
+      if tmpData == "on" {
         data = "t"
       } else {
         data = "f"
@@ -50,17 +68,17 @@ func CreateDocument(ds string, r *http.Request) (int64, error) {
       toInsert[dd.Name] = data
 
     case "Datetime":
-      if r.FormValue(dd.Name) != "" {
+      if tmpData != "" {
         tzname, err := getUserTimeZoneSuffix(userIdInt64)
         if err != nil {
           return 0, errors.Wrap(err, "pankul error")
         }
-        toInsert[dd.Name] = r.FormValue(dd.Name) + " " + tzname
+        toInsert[dd.Name] = tmpData + " " + tzname
       }
 
     default:
-      if r.FormValue(dd.Name) != "" {
-        toInsert[dd.Name] = r.FormValue(dd.Name)
+      if tmpData != "" {
+        toInsert[dd.Name] = tmpData
       }
     }
   }
@@ -83,13 +101,15 @@ func CreateDocument(ds string, r *http.Request) (int64, error) {
 }
 
 
-type docAndStructure struct {
+type DocAndStructure struct {
   DocData
   Data string
 }
 
-
-func GetDocument(ds string, docId int64, r *http.Request) ([]docAndStructure, map[string]string, error) {
+// This function can be used in your update pages or view pages.
+// This function would get the structure and data for presentation as a form with some values.
+// The second field contains meta information: created, created_by & modified.
+func GetDocument(ds string, docId int64, r *http.Request) ([]DocAndStructure, map[string]string, error) {
   userIdInt64, err := GetCurrentUser(r)
   if err != nil {
     return nil, nil, errors.Wrap(err, "pankul error")
@@ -134,7 +154,7 @@ func GetDocument(ds string, docId int64, r *http.Request) ([]docAndStructure, ma
     return nil, nil, errors.Wrap(err, "pankul error")
   }
 
-  docAndStructureSlice := make([]docAndStructure, 0)
+  docAndStructureSlice := make([]DocAndStructure, 0)
 
   rowMap := make(map[string]string)
   for k, v := range *arow {
@@ -151,7 +171,7 @@ func GetDocument(ds string, docId int64, r *http.Request) ([]docAndStructure, ma
     case string:
       data = dInType
     case bool:
-      data = BoolToStr(dInType)
+      data = boolToStr(dInType)
     }
 
     rowMap[k] = data
@@ -159,15 +179,13 @@ func GetDocument(ds string, docId int64, r *http.Request) ([]docAndStructure, ma
 
 
   for _, docData := range docDatas {
-    if docData.Type == "Section Break" {
-      docAndStructureSlice = append(docAndStructureSlice, docAndStructure{docData, ""})
-    } else if docData.Type == "Date" {
+    if docData.Type == "Date" {
       data := (*arow)[docData.Name].(time.Time).Format("2006-01-02")
-      docAndStructureSlice = append(docAndStructureSlice, docAndStructure{docData, data})
+      docAndStructureSlice = append(docAndStructureSlice, DocAndStructure{docData, data})
     } else {
       data := rowMap[ docData.Name ]
 
-      docAndStructureSlice = append(docAndStructureSlice, docAndStructure{docData, data})
+      docAndStructureSlice = append(docAndStructureSlice, DocAndStructure{docData, data})
     }
   }
 
@@ -193,7 +211,9 @@ func GetDocument(ds string, docId int64, r *http.Request) ([]docAndStructure, ma
 }
 
 
-func UpdateDocument(ds string, docId int64, r *http.Request) error {
+// This is used in your update pages.
+// It should be called to complete an update action.
+func UpdateDocument(ds string, docId int64, dataMap map[string]string, r *http.Request) error {
   userIdInt64, err := GetCurrentUser(r)
   if err != nil {
     return errors.Wrap(err, "pankul error")
@@ -219,12 +239,15 @@ func UpdateDocument(ds string, docId int64, r *http.Request) error {
 
   toUpdate := make(map[string]string)
   for _, docAndStructure := range docAndStructureSlice {
-
+    tmpData, ok := dataMap[docAndStructure.DocData.Name]
+    if ! ok {
+      continue
+    }
     if docAndStructure.Data != html.EscapeString(r.FormValue(docAndStructure.DocData.Name)) {
       switch docAndStructure.DocData.Type {
       case "Check":
         var data string
-        if r.FormValue(docAndStructure.DocData.Name) == "on" {
+        if tmpData == "on" {
           data = "t"
         } else {
           data = "f"
@@ -235,9 +258,9 @@ func UpdateDocument(ds string, docId int64, r *http.Request) error {
         if err != nil {
           return errors.Wrap(err, "pankul error")
         }
-        toUpdate[docAndStructure.DocData.Name] = r.FormValue(docAndStructure.DocData.Name) + " " + tzname
+        toUpdate[docAndStructure.DocData.Name] = tmpData + " " + tzname
       default:
-        toUpdate[docAndStructure.DocData.Name] = html.EscapeString(r.FormValue(docAndStructure.DocData.Name))
+        toUpdate[docAndStructure.DocData.Name] = html.EscapeString(tmpData)
       }
     }
 
