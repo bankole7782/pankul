@@ -173,63 +173,6 @@ func getDocumentStructureID(documentStructure string) (int64, error) {
 }
 
 
-type DocData struct {
-  Label string
-  Name string
-  Type string
-  Required bool
-  Unique bool
-  OtherOptions []string
-}
-
-
-func GetDocData(documentStructure string) ([]DocData, error) {
-  dds := make([]DocData, 0)
-  dsid, err := getDocumentStructureID(documentStructure)
-  if err != nil {
-    return dds, err
-  }
-
-  rows, err := FRCL.Search(fmt.Sprintf(`
-  	table: pk_fields
-  	order_by: view_order asc
-  	where:
-  		dsid = %d
-  	`, dsid))
-  if err != nil {
-    return dds, err
-  }
-  for _, row := range *rows {
-    var label, name, type_, options, otherOptions string
-
-    label = row["label"].(string)
-    name = row["name"].(string)
-    type_ = row["type"].(string)
-    if op, ok := row["options"]; ok {
-    	options = op.(string)
-    }
-    if oo, ok := row["other_options"]; ok {
-    	otherOptions = oo.(string)
-    }
-    var required, unique bool
-    if optionSearch(options, "required") {
-      required = true
-    }
-    if optionSearch(options, "unique") {
-      unique = true
-    }
-    otherOptionsOk := make([]string, 0)
-    for _, otherOption := range strings.Split(otherOptions, "\n") {
-      otherOptionsOk = append(otherOptionsOk, strings.TrimSpace(otherOption))
-    }
-    dd := DocData{label, name, type_, required, unique, otherOptionsOk}
-    dds = append(dds, dd)
-  }
-
-  return dds, nil
-}
-
-
 func boolToStr(b bool) string {
   if b {
     return "t"

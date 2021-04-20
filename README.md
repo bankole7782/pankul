@@ -43,25 +43,9 @@ Copy the folder `pankul_files` from the main repo into the same path as your `ma
 
 Make sure you look at `main.go` in the sample app, copy and edit it to your own preferences.
 
-Go to `/pankul/setup/` to create some tables that the project would need.
+Go to `/pk/setup/` to create some tables that the project would need.
 
-Then go to `/pankul/page/` to start using this project.
-
-
-
-### Theming Your Project
-
-The sample project has no design. To make it beautiful make a template from this template :`pankul_files/bad-base.html`
-. Save it to your project and then point your version to `pankul.BaseTemplate`.
-
-Also if you want to add dynamic contents to any `pankul` page, please use JavaScript.
-First check the address of the page `window.location` before adding it.
-
-
-## FAQs
-### When is X Database Support Coming
-
-I don't intend to support more than one database so has to make the work cheaper.
+Then go to `/pk/page/` to start using this project.
 
 
 ## License
