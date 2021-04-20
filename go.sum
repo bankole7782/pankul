@@ -44,6 +44,8 @@ github.com/adam-hanna/arrayOperations v0.2.6/go.mod h1:iIzkSjP91FnE66cUFNAjjUJVm
 github.com/aymerick/douceur v0.2.0/go.mod h1:wlT5vV2O3h55X9m7iVYN0TBM0NH/MmbLnd30/FjWUq4=
 github.com/bankole7782/flaarum v1.7.0 h1:SzR+QtiZD1Q832LGB43XecbxzSnEuOK6+aut19i5M4Y=
 github.com/bankole7782/flaarum v1.7.0/go.mod h1:x6wd1yyrm9cUQHng2sJmDNqHDreW3soCNyQQn0E/3Ck=
+github.com/bankole7782/flaarum v1.7.1 h1:Is6/0hWOZcy166x7qQaEAYAZmEY41BDWBHXaLIGEGSI=
+github.com/bankole7782/flaarum v1.7.1/go.mod h1:x6wd1yyrm9cUQHng2sJmDNqHDreW3soCNyQQn0E/3Ck=
 github.com/bankole7782/mof v1.0.0/go.mod h1:jh9v/sFA9YDydJIpADTYnKFjshE3a2ywtPfPkxocqDQ=
 github.com/bankole7782/zazabul v1.1.0 h1:F8dSp408bI9AudJREpcO80AFOub4QQqQGvTnknD+oUM=
 github.com/bankole7782/zazabul v1.1.0/go.mod h1:Bhozf0+Zjg9v7jSWCR0lnAcqmf2hHgYe7+52lD6ZuTg=

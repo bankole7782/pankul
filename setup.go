@@ -4,8 +4,8 @@ import (
   "fmt"
   "net/http"
   "github.com/gorilla/mux"
-  "net/url"
-  "strings"
+  // "net/url"
+  // "strings"
   "html/template"
   "github.com/bankole7782/flaarum"
   "github.com/bankole7782/flaarum/flaarum_shared"
@@ -15,19 +15,6 @@ var FRCL flaarum.Client
 var Admins []int64
 var GetCurrentUser func(r *http.Request) (int64, error)
 var BaseTemplate string
-
-type ExtraCode struct {
-  ValidationFn func(postForm url.Values) string
-  AfterCreateFn func(id int64)
-  AfterUpdateFn func(id int64)
-  BeforeDeleteFn func(id int64)
-  CanCreateFn func() string
-}
-
-var ExtraCodeMap = make(map[int64]ExtraCode)
-
-var BucketName string
-
 
 func findIn(container []string, toFind string) int {
   for i, inContainer := range container {
@@ -59,14 +46,6 @@ func formatTableStruct(tableStruct flaarum_shared.TableStruct) string {
     stmt += "foreign_keys:\n"
     for _, fks := range tableStruct.ForeignKeys {
       stmt += "\t" + fks.FieldName + " " + fks.PointedTable + " " + fks.OnDelete + "\n"
-    }
-    stmt += "::\n"
-  }
-
-  if len(tableStruct.UniqueGroups) > 0 {
-    stmt += "unique_groups:\n"
-    for _, ug := range tableStruct.UniqueGroups {
-      stmt += "\t" + strings.Join(ug, " ") + "\n"
     }
     stmt += "::\n"
   }
@@ -128,11 +107,6 @@ func pankulSetup(w http.ResponseWriter, r *http.Request) {
 
   if GetCurrentUser == nil {
     errorPage(w, "You must set the \"pankul.GetCurrentUser\". Please set this variable to a function with signature func(r *http.Request) (int64, error).")
-    return
-  }
-
-  if BucketName == "" {
-    errorPage(w, "You must set the \"pankul.BucketName\". Create a bucket on google cloud and set it to this variable.")
     return
   }
 

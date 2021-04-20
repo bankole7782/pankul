@@ -23,7 +23,7 @@ func main() {
   // FORMS814 setup. Very important
   pankul.FRCL = cl
 
-  pankul.Admins = []int64{3, }
+  pankul.Admins = []int64{1, }
 
   // This sample makes use of environment variables to get the current user. Real life application
   // could save a random string to the browser cookies. And this random string point to a userid
@@ -40,10 +40,6 @@ func main() {
     }
     return useridInt64, nil
   }
-
-  // pankul.ExtraCodeMap[1] = qf.ExtraCode{CanCreateFn: testCreateFn}
-
-  pankul.BucketName = os.Getenv("PK_GCLOUD_BUCKET")
 
   // pankul.BaseTemplate = "basetemplate.html"
   r := mux.NewRouter()

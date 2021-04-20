@@ -230,21 +230,6 @@ func GetDocData(documentStructure string) ([]DocData, error) {
 }
 
 
-func getEC(documentStructure string) (ExtraCode, bool) {
-  dsid, err := getDocumentStructureID(documentStructure)
-  if err != nil {
-    return ExtraCode{}, false
-  }
-
-
-  ec, ok := ExtraCodeMap[dsid]
-  if ok {
-    return ec, true
-  }
-  return ExtraCode{}, false
-}
-
-
 func BoolToStr(b bool) string {
   if b {
     return "t"
