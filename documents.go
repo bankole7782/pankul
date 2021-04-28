@@ -87,11 +87,8 @@ func MakeDataMapFromRequest(r *http.Request) map[string]string {
 
 
 // This function would be used for saving in your create pages.
-func CreateDocument(ds string, dataMap map[string]string, r *http.Request) (int64, error) {
-  userIdInt64, err := GetCurrentUser(r)
-  if err != nil {
-    return 0, errors.Wrap(err, "pankul error")
-  }
+func CreateDocument(ds string, dataMap map[string]string, userId int64) (int64, error) {
+  userIdInt64 := userId
 
   detv, err := docExists(ds)
   if err != nil {
@@ -171,11 +168,8 @@ type DocAndStructure struct {
 // This function can be used in your update pages or view pages.
 // This function would get the structure and data for presentation as a form with some values.
 // The second field contains meta information: created, created_by & modified.
-func GetDocument(ds string, docId int64, r *http.Request) ([]DocAndStructure, map[string]string, error) {
-  userIdInt64, err := GetCurrentUser(r)
-  if err != nil {
-    return nil, nil, errors.Wrap(err, "pankul error")
-  }
+func GetDocument(ds string, docId int64, userId int64) ([]DocAndStructure, map[string]string, error) {
+  userIdInt64 := userId
 
   detv, err := docExists(ds)
   if err != nil {
@@ -275,11 +269,9 @@ func GetDocument(ds string, docId int64, r *http.Request) ([]DocAndStructure, ma
 
 // This is used in your update pages.
 // It should be called to complete an update action.
-func UpdateDocument(ds string, docId int64, dataMap map[string]string, r *http.Request) error {
-  userIdInt64, err := GetCurrentUser(r)
-  if err != nil {
-    return errors.Wrap(err, "pankul error")
-  }
+func UpdateDocument(ds string, docId int64, dataMap map[string]string, userId int64) error {
+  userIdInt64 := userId
+
 
   detv, err := docExists(ds)
   if err != nil {
@@ -294,7 +286,7 @@ func UpdateDocument(ds string, docId int64, dataMap map[string]string, r *http.R
     return errors.Wrap(err, "pankul error")
   }
 
-  docAndStructureSlice, _, err := GetDocument(ds, docId, r)
+  docAndStructureSlice, _, err := GetDocument(ds, docId, userId)
   if err != nil {
     return errors.Wrap(err, "pankul error")
   }
@@ -305,7 +297,7 @@ func UpdateDocument(ds string, docId int64, dataMap map[string]string, r *http.R
     if ! ok {
       continue
     }
-    if docAndStructure.Data != html.EscapeString(r.FormValue(docAndStructure.DocData.Name)) {
+    if docAndStructure.Data != html.EscapeString(dataMap[docAndStructure.DocData.Name]) {
       switch docAndStructure.DocData.Type {
       case "Check":
         var data string
