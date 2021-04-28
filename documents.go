@@ -24,6 +24,8 @@ type DocData struct {
 }
 
 
+// This function can be used for rendering a form.
+// You are to loop through the returned object to create a form.
 func GetDocData(documentStructure string) ([]DocData, error) {
   dds := make([]DocData, 0)
   dsid, err := getDocumentStructureID(documentStructure)
